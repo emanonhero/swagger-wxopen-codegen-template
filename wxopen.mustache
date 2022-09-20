@@ -28,7 +28,11 @@ export default class {{&className}} {
     setAuthenticate(auth) {
         this.authenticate = auth;
     }
-
+    uniSafeHideLoading(){
+        try{
+            uni.hideLoading();
+        }catch(e){}
+    }
     /**
     * HTTP Request
     * @method
@@ -38,24 +42,54 @@ export default class {{&className}} {
     * @param {object} data - 请求的参数
     * @param {object} headers - 设置请求的 header ,默认为 application/json
     */
-    request(method, url, parameters, data, headers){
+        request(method, url, query, data, headers) {
         return new Promise((resolve, reject) => {
-            wx.request({
+			if(query){
+				if(method==='POST'){
+					let queryArr = [];
+					for (const key in query) {
+					            if (query.hasOwnProperty(key)) {
+					                queryArr.push(`${key}=${query[key]}`) //?url encode?
+					            }
+					}
+					if(url.indexOf('?') !== -1) {
+					            url =`${url}&${queryArr.join('&')}`
+					} else {
+					            url =`${url}?${queryArr.join('&')}`
+					}
+				}else if(method==='GET'){
+					data={
+						...query,
+						...data
+					}
+				}
+			}
+                	uni.showLoading();
+            uni.request({
                 url: url,
                 data: data,
                 header: headers,
                 method: method,
                 success: res => {
-                    if(res.statusCode >= 200 && res.statusCode <= 299) {
+                    	this.uniSafeHideLoading();
+                    if (res.statusCode >= 200 && res.statusCode <= 299) {
                         resolve(res.data)
                     } else {
                         reject(res)
                     }
                 },
-                fail: e => reject(e)
+                fail: err => {
+                    	this.uniSafeHideLoading();
+                        uni.showToast({
+                            icon: 'error',
+                            title: err.data?.error?.message || err.errMsg,
+                        });
+                    reject(err);
+                    }
             })
         })
     };
+
 
     {{#methods}}
         {{> method}}
