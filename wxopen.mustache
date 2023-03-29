@@ -80,10 +80,15 @@ export default class {{&className}} {
                 },
                 fail: err => {
                     	this.uniSafeHideLoading();
+                        let error=err.data?.error?.message || err.errMsg;
                         uni.showToast({
                             icon: 'error',
-                            title: err.data?.error?.message || err.errMsg,
+                            title: error,
                         });
+                        if(error.startsWith('[EC:110003]')){
+                            console.warn('[EC:110003]错误强制清除token', err);
+                            uni.clearStorageSync('serverToken');
+                        }
                     reject(err);
                     }
             })
