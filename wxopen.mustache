@@ -45,7 +45,12 @@ export default class {{&className}} {
         request(method, url, query, data, headers) {
         return new Promise((resolve, reject) => {
 			if(query){
-				if(method==='POST'){
+                if(method==='GET'){
+					data={
+						...query,
+						...data
+					}
+				}else{
 					let queryArr = [];
 					for (const key in query) {
 					            if (query.hasOwnProperty(key)) {
@@ -57,12 +62,7 @@ export default class {{&className}} {
 					} else {
 					            url =`${url}?${queryArr.join('&')}`
 					}
-				}else if(method==='GET'){
-					data={
-						...query,
-						...data
-					}
-				}
+				} 
 			}
                 	uni.showLoading();
             uni.request({
@@ -85,8 +85,8 @@ export default class {{&className}} {
                             icon: 'error',
                             title: error,
                         });
-                        if(error.startsWith('[EC:110003]')){
-                            console.warn('[EC:110003]错误强制清除token', err);
+                        if(error.startsWith('[EC:11003]')){
+                            console.warn('[EC:11003]错误强制清除token', err);
                             uni.clearStorageSync('serverToken');
                         }
                     reject(err);
