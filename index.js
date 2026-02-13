@@ -2,7 +2,7 @@ var fs = require('fs');
 var request = require('request');
 var CodeGen = require('swagger-js-codegen').CodeGen;
 
-const swaggerPath = 'https://localhost:44398/swagger/Profession/swagger.json';
+const swaggerPath = 'http://testadm.iii-box.com/swagger/Profession/swagger.json';
 const apiPath = './api.js';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 

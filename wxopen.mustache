@@ -64,6 +64,16 @@ export default class {{&className}} {
 					}
 				} 
 			}
+            // 灰度发布：检查用户灰度状态，自动注入路由 Header
+            try {
+                let userInfo = uni.getStorageSync('userInfo');
+                if (userInfo && userInfo.isGrayScale) {
+                    headers = headers || {};
+                    headers['X-Tide-Gray-Id'] = userInfo.id;
+                }
+            } catch (e) {
+                console.warn('Gray release header injection failed:', e);
+            }
                 	uni.showLoading();
             uni.request({
                 url: url,
@@ -85,9 +95,14 @@ export default class {{&className}} {
                             icon: 'error',
                             title: error,
                         });
-                        if(error.startsWith('[EC:11003]')){
+                        if (error.startsWith('[EC:11002]')||error.startsWith('[EC:11003]')){
                             console.warn('[EC:11003]错误强制清除token', err);
-                            uni.clearStorageSync('serverToken');
+                            uni.removeStorage({
+                        						key: 'serverToken'
+                        					});
+                            uni.removeStorage({
+                        						key: 'serverToken_dead'
+                        					});
                         }
                     reject(err);
                     }
